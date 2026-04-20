@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       outputBuffer = await applyWatermark(outputBuffer, options.watermark);
     }
 
-    return new NextResponse(outputBuffer, {
+    return new NextResponse(new Uint8Array(outputBuffer), {
       headers: { 'Content-Type': 'image/jpeg' }
     });
   } catch (err: any) {
