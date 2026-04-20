@@ -1,13 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Bỏ qua check lỗi để ưu tiên deploy
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  /* Các tùy chọn cấu hình khác nếu cần */
 };
 
 export default nextConfig;

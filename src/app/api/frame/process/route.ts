@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-// sharp will be imported dynamically inside the handler
-import { extractExif } from '@/lib/frame-logic/exif.util';
 import {
   buildDisplayMetadata,
   calculatePadding,
@@ -20,7 +18,15 @@ export async function POST(req: NextRequest) {
     if (!file) return NextResponse.json({ message: 'No file' }, { status: 400 });
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const exif = await extractExif(buffer);
+    
+    // Server-side EXIF extraction is now a backup/fallback
+    let exif = {};
+    try {
+      const exifr = (await import('exifr')).default;
+      exif = await exifr.parse(buffer, { tiff: true, exif: true, mergeOutput: true }) || {};
+    } catch (e) {
+      console.warn('Server EXIF fallback failed (likely compressed image)');
+    }
 
     const sharp = (await import('sharp')).default;
     let pipeline = sharp(buffer).rotate();
@@ -40,8 +46,9 @@ export async function POST(req: NextRequest) {
       .extend({ top: padding.top, bottom: padding.bottom, left: padding.left, right: padding.right, background: bgRgb })
       .toBuffer();
 
+    // PRIORITIZE client-sent metadata (which includes overrides)
     const displayMeta = buildDisplayMetadata(exif, options.metadata || options);
-    const svgBuffer   = generateFrameSvg(canvasW, canvasH, imgH, padding, style, displayMeta, exif.cameraBrand);
+    const svgBuffer   = generateFrameSvg(canvasW, canvasH, imgH, padding, style, displayMeta, options.metadata?.cameraBrand);
 
     const compositedBuffer = await sharp(extendedBuffer)
       .composite([{ input: svgBuffer, top: 0, left: 0 }])
@@ -57,7 +64,7 @@ export async function POST(req: NextRequest) {
       headers: { 'Content-Type': 'image/jpeg' }
     });
   } catch (err: any) {
-    console.error(err);
+    console.error('Process error:', err);
     return NextResponse.json({ message: err.message }, { status: 500 });
   }
 }

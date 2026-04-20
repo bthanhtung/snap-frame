@@ -10,12 +10,35 @@ export const api = {
   },
 
   async extractExif(file: File): Promise<Record<string, any>> {
-    const fileToUpload = await compressImageIfNeeded(file);
-    const form = new FormData();
-    form.append('file', fileToUpload);
-    const res = await fetch('/api/frame/extract-exif', { method: 'POST', body: form });
-    if (!res.ok) throw new Error('Failed to extract EXIF');
-    return res.json();
+    try {
+      const exifr = (await import('exifr')).default;
+      const raw = await exifr.parse(file, {
+        tiff: true, exif: true, gps: true, reviveValues: true, mergeOutput: true,
+      });
+      if (!raw) return {};
+      
+      // Helper functions to format values (similar to server-side)
+      const formatFocalLength = (v: any) => v ? `${Math.round(v)}mm` : undefined;
+      const formatAperture = (v: any) => v ? `f/${Math.round(v * 10) / 10}` : undefined;
+      const formatDate = (v: any) => {
+        if (!v) return undefined;
+        const d = new Date(v);
+        return isNaN(d.getTime()) ? undefined : `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+      };
+
+      return {
+        camera: raw.Model,
+        lens: raw.LensModel || raw.Lens,
+        focalLength: formatFocalLength(raw.FocalLength || raw.FocalLengthIn35mmFormat),
+        aperture: formatAperture(raw.FNumber || raw.ApertureValue),
+        shutterSpeed: raw.ExposureTime ? (raw.ExposureTime >= 1 ? `${Math.round(raw.ExposureTime)}s` : `1/${Math.round(1/raw.ExposureTime)}s`) : undefined,
+        iso: raw.ISO,
+        date: formatDate(raw.DateTimeOriginal || raw.DateTime),
+      };
+    } catch (err) {
+      console.warn('Client-side EXIF failed:', err);
+      return {};
+    }
   },
 
   async processImage(file: File, options: Record<string, any>): Promise<Blob> {
