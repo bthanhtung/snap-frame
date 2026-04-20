@@ -3,12 +3,13 @@
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/.next",
   "functions": {
-    "backend/api/index.ts": {
+    "api/index.ts": {
+      "includeFiles": "backend/**",
       "memory": 1024,
       "maxDuration": 30
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/backend/api/index" }
+    { "source": "/api/(.*)", "destination": "/api/index" }
   ]
 }
