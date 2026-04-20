@@ -1,16 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    // Bỏ qua lỗi ESLint khi build để ưu tiên deploy nhanh
-    ignoreDuringBuilds: true,
-  },
+  // Cho phép Sharp hoạt động tốt trên Vercel bằng cách coi nó là external
+  serverExternalPackages: ["sharp"],
+  
+  // Tắt các kiểm tra gây lỗi build trên môi trường CI nếu cần thiết
   typescript: {
-    // Bỏ qua lỗi Type check khi build nếu cần
     ignoreBuildErrors: true,
   },
-  // Cho phép Sharp hoạt động tốt trên Vercel
-  serverExternalPackages: ["sharp"],
 };
 
 export default nextConfig;

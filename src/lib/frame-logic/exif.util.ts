@@ -1,3 +1,4 @@
+import exifr from 'exifr';
 import { ExifDataDto } from '../dto/frame-response.dto.js';
 
 /**
@@ -5,10 +6,7 @@ import { ExifDataDto } from '../dto/frame-response.dto.js';
  */
 export async function extractExif(buffer: Buffer): Promise<ExifDataDto> {
   try {
-    // Dynamic import for exifr (ESM module)
-    const exifr = await import('exifr');
-
-    const raw = await exifr.default.parse(buffer, {
+    const raw = await exifr.parse(buffer, {
       tiff: true,
       exif: true,
       gps: true,
