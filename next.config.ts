@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Để Vercel tự động xử lý tracing cho Sharp (đây là cách khuyến nghị mới nhất)
+  // Bỏ qua check lỗi để ưu tiên deploy
   typescript: {
     ignoreBuildErrors: true,
   },
