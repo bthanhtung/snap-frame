@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sharp from 'sharp';
+// sharp will be imported dynamically inside the handler
 import { extractExif } from '@/lib/frame-logic/exif.util';
 import {
   buildDisplayMetadata,
@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const exif = await extractExif(buffer);
 
+    const sharp = (await import('sharp')).default;
     let pipeline = sharp(buffer).rotate();
     const resizedBuffer = await pipeline.toBuffer();
     const { width: imgW, height: imgH } = await sharp(resizedBuffer).metadata();

@@ -1,4 +1,3 @@
-import exifr from 'exifr';
 import { ExifDataDto } from '../dto/frame-response.dto.js';
 
 /**
@@ -6,6 +5,8 @@ import { ExifDataDto } from '../dto/frame-response.dto.js';
  */
 export async function extractExif(buffer: Buffer): Promise<ExifDataDto> {
   try {
+    const exifr = (await import('exifr')).default;
+
     const raw = await exifr.parse(buffer, {
       tiff: true,
       exif: true,
@@ -36,7 +37,7 @@ export async function extractExif(buffer: Buffer): Promise<ExifDataDto> {
       imageHeight: raw.ExifImageHeight ?? raw.ImageHeight ?? raw.PixelYDimension,
       orientation: raw.Orientation,
     };
-  } catch (err) {
+  } catch (err: any) {
     console.warn('EXIF extraction failed:', err?.message);
     return {};
   }
@@ -46,8 +47,6 @@ function buildCameraName(raw: Record<string, any>): string | undefined {
   const make = raw.Make?.trim();
   const model = raw.Model?.trim();
   if (!model) return undefined;
-
-  // Avoid duplicating brand if model already contains it
   if (make && !model.toLowerCase().startsWith(make.toLowerCase())) {
     return `${make} ${model}`;
   }
@@ -57,33 +56,17 @@ function buildCameraName(raw: Record<string, any>): string | undefined {
 function extractBrand(raw: Record<string, any>): string | undefined {
   const make = raw.Make?.trim();
   if (!make) return undefined;
-  // Normalize common brands
   const brands: Record<string, string> = {
-    SONY: 'Sony',
-    CANON: 'Canon',
-    NIKON: 'Nikon',
-    FUJIFILM: 'Fujifilm',
-    OLYMPUS: 'Olympus',
-    PANASONIC: 'Panasonic',
-    LEICA: 'Leica',
-    HASSELBLAD: 'Hasselblad',
-    'APPLE INC.': 'Apple',
-    APPLE: 'Apple',
-    SAMSUNG: 'Samsung',
-    GOOGLE: 'Google',
-    HUAWEI: 'Huawei',
-    XIAOMI: 'Xiaomi',
+    SONY: 'Sony', CANON: 'Canon', NIKON: 'Nikon', FUJIFILM: 'Fujifilm',
+    OLYMPUS: 'Olympus', PANASONIC: 'Panasonic', LEICA: 'Leica',
+    HASSELBLAD: 'Hasselblad', 'APPLE INC.': 'Apple', APPLE: 'Apple',
+    SAMSUNG: 'Samsung', GOOGLE: 'Google', HUAWEI: 'Huawei', XIAOMI: 'Xiaomi',
   };
   return brands[make.toUpperCase()] ?? make;
 }
 
 function buildLensName(raw: Record<string, any>): string | undefined {
-  return (
-    raw.LensModel?.trim() ??
-    raw.Lens?.trim() ??
-    raw.LensInfo?.trim() ??
-    undefined
-  );
+  return raw.LensModel?.trim() ?? raw.Lens?.trim() ?? raw.LensInfo?.trim() ?? undefined;
 }
 
 function formatFocalLength(value: number | undefined): string | undefined {
@@ -99,12 +82,7 @@ function formatAperture(value: number | undefined): string | undefined {
 
 function formatShutterSpeed(value: number | undefined): string | undefined {
   if (value == null) return undefined;
-
-  if (value >= 1) {
-    return `${Math.round(value)}s`;
-  }
-
-  // Convert to fraction: 1/x
+  if (value >= 1) return `${Math.round(value)}s`;
   const denominator = Math.round(1 / value);
   return `1/${denominator}s`;
 }
@@ -123,9 +101,7 @@ function formatDate(value: Date | string | undefined): string | undefined {
   }
 }
 
-function formatGPS(
-  raw: Record<string, any>,
-): { lat: number; lng: number } | undefined {
+function formatGPS(raw: Record<string, any>): { lat: number; lng: number } | undefined {
   if (raw.latitude != null && raw.longitude != null) {
     return {
       lat: Math.round(raw.latitude * 10000) / 10000,
