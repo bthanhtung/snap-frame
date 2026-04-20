@@ -13,16 +13,18 @@ export const api = {
   },
 
   async extractExif(file: File): Promise<Record<string, any>> {
+    const fileToUpload = await compressImageIfNeeded(file);
     const form = new FormData();
-    form.append('file', file);
+    form.append('file', fileToUpload);
     const res = await fetch(`${API_URL}/api/frame/extract-exif`, { method: 'POST', body: form });
     if (!res.ok) throw new Error('Failed to extract EXIF');
     return res.json();
   },
-
+ 
   async processImage(file: File, options: Record<string, any>): Promise<Blob> {
+    const fileToUpload = await compressImageIfNeeded(file);
     const form = new FormData();
-    form.append('file', file);
+    form.append('file', fileToUpload);
     form.append('options', JSON.stringify(options));
     const res = await fetch(`${API_URL}/api/frame/process`, { method: 'POST', body: form });
     if (!res.ok) {
@@ -31,16 +33,71 @@ export const api = {
     }
     return res.blob();
   },
-
+ 
   async batchProcess(files: File[], options: Record<string, any>): Promise<any> {
+    const processedFiles = await Promise.all(files.map(f => compressImageIfNeeded(f)));
     const form = new FormData();
-    files.forEach(f => form.append('files', f));
+    processedFiles.forEach(f => form.append('files', f));
     form.append('options', JSON.stringify(options));
     const res = await fetch(`${API_URL}/api/batch/process`, { method: 'POST', body: form });
     if (!res.ok) throw new Error('Batch processing failed');
     return res.json();
   },
 };
+
+async function compressImageIfNeeded(file: File): Promise<File | Blob> {
+  const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  const MAX_SIZE = 3 * 1024 * 1024; // 3MB
+  
+  // Nếu là localhost hoặc ảnh nhỏ hơn 3MB thì không cần nén
+  if (isLocalhost || file.size <= MAX_SIZE) {
+    return file;
+  }
+
+  console.log(`Compressing ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) for Vercel...`);
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Giới hạn kích thước tối đa khoảng 2500px để giảm dung lượng
+        const MAX_DIM = 2500;
+        if (width > height && width > MAX_DIM) {
+          height = (height * MAX_DIM) / width;
+          width = MAX_DIM;
+        } else if (height > MAX_DIM) {
+          width = (width * MAX_DIM) / height;
+          height = MAX_DIM;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              console.log(`Compressed size: ${(blob.size / 1024 / 1024).toFixed(2)}MB`);
+              resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+            } else {
+              resolve(file);
+            }
+          },
+          'image/jpeg',
+          0.8 // Chất lượng 80% thường giảm dung lượng rất nhiều mà vẫn đẹp
+        );
+      };
+    };
+  });
+}
 
 export function blobToDataURL(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
