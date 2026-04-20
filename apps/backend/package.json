@@ -1,5 +1,5 @@
 {
-  "name": "snap-frame",
+  "name": "snap-frame-backend",
   "version": "0.0.1",
   "description": "Image Frame API — Upload ảnh, đọc EXIF metadata, resize và thêm frame với thông số camera",
   "author": "",
