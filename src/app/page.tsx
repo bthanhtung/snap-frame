@@ -19,7 +19,9 @@ export default function EditorPage() {
 
   const [metadata, setMetadata] = useState<MetadataState>({
     camera: '', lens: '', focalLength: '', aperture: '', shutterSpeed: '', iso: '', date: '', location: '',
-    showFields: ['camera', 'focalLength', 'aperture', 'shutterSpeed', 'iso']
+    showFields: ['camera', 'focalLength', 'aperture', 'shutterSpeed', 'iso'],
+    position: 'between',
+    vPosition: 'bottom'
   });
 
   const [watermark, setWatermark] = useState<WatermarkState>({
@@ -54,15 +56,7 @@ export default function EditorPage() {
     frame: { enabled: true, style: styleId, size: 'md' },
     output: { format: 'jpeg', quality: 92 },
     metadata: {
-      camera: metadata.camera,
-      lens: metadata.lens,
-      focalLength: metadata.focalLength,
-      aperture: metadata.aperture,
-      shutterSpeed: metadata.shutterSpeed,
-      iso: metadata.iso,
-      date: metadata.date,
-      location: metadata.location,
-      showFields: metadata.showFields,
+      ...metadata
     },
     watermark: watermark.imageBase64 ? watermark : undefined,
   });

@@ -416,6 +416,66 @@ a { color: inherit; text-decoration: none; }
     min-height: 450px;
     height: 50vh;      /* Use 50% of screen for preview on mobile */
   }
+/* Metadata Panel Extensions */
+.position-controls {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.group-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.btn-group {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.btn-group .group-btn {
+  padding: 8px 4px;
+  font-size: 0.8rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-group .group-btn:hover {
+  color: var(--foreground);
+}
+
+.btn-group .group-btn.active {
+  background: var(--card-bg);
+  color: var(--foreground);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 600px) {
+  .btn-group {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
   .sidebar {
     overflow-y: visible; /* Let it scroll naturally with the page */

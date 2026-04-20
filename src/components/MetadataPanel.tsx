@@ -12,6 +12,8 @@ export interface MetadataState {
   date: string;
   location: string;
   showFields: string[];
+  position: 'left' | 'center' | 'right' | 'between';
+  vPosition: 'top' | 'bottom';
 }
 
 interface MetadataPanelProps {
@@ -56,8 +58,49 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
   return (
     <div className="metadata-panel">
       <div className="panel-header">
-        <h3 className="panel-title">Metadata Overrides</h3>
-        <span className="panel-subtitle">Sửa thông số lấy từ EXIF</span>
+        <h3 className="panel-title">Metadata Config</h3>
+        <span className="panel-subtitle">Tùy chỉnh thông số hiển thị</span>
+      </div>
+
+      {/* Position Selectors */}
+      <div className="position-controls">
+        <div className="control-group">
+          <label className="group-label">Vị trí ngang</label>
+          <div className="btn-group">
+            {[
+              { id: 'left', label: 'Trái' },
+              { id: 'center', label: 'Giữa' },
+              { id: 'right', label: 'Phải' },
+              { id: 'between', label: 'Đều 2 bên' }
+            ].map(pos => (
+              <button 
+                key={pos.id}
+                className={`group-btn ${metadata.position === pos.id ? 'active' : ''}`}
+                onClick={() => onChange('position', pos.id)}
+              >
+                {pos.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="control-group">
+          <label className="group-label">Vị trí dọc</label>
+          <div className="btn-group">
+            {[
+              { id: 'top', label: 'Trên' },
+              { id: 'bottom', label: 'Dưới' }
+            ].map(vpos => (
+              <button 
+                key={vpos.id}
+                className={`group-btn ${metadata.vPosition === vpos.id ? 'active' : ''}`}
+                onClick={() => onChange('vPosition', vpos.id)}
+              >
+                {vpos.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
       
       <div className="metadata-grid">
