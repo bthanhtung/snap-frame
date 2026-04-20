@@ -1,7 +1,6 @@
 {
-  "framework": "nextjs",
   "installCommand": "npm install",
-  "buildCommand": "cd apps/frontend && npm run build",
+  "buildCommand": "npm run build -w snap-frame-frontend",
   "outputDirectory": "apps/frontend/.next",
   "functions": {
     "api/index.ts": {
