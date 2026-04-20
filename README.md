@@ -72,7 +72,7 @@ npm run dev
 ## 📖 Cấu trúc Thư mục Code
 
 ```text
-image-frame/
+snap-frame/
 ├── package.json               # Monorepo Scripts (start: dev, build, ...)
 │
 ├── apps/

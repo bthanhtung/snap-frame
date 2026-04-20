@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://snap-frame-api.vercel.app/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/apps/frontend/$1"
+    }
+  ]
+}
