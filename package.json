@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Image Frame — Monorepo: NestJS backend + Next.js frontend",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "workspaces": [
     "backend",
     "frontend"

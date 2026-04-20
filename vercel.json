@@ -9,7 +9,6 @@
       "maxDuration": 30
     }
   },
-  "nodeVersion": "20.x",
   "rewrites": [
     { "source": "/api/api/:path*", "destination": "/api/index" },
     { "source": "/api/:path*", "destination": "/api/index" }
