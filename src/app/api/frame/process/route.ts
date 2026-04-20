@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       .extend({ top: padding.top, bottom: padding.bottom, left: padding.left, right: padding.right, background: bgRgb })
       .toBuffer();
 
-    const displayMeta = buildDisplayMetadata(exif, options.metadata);
+    const displayMeta = buildDisplayMetadata(exif, options.metadata || options);
     const svgBuffer   = generateFrameSvg(canvasW, canvasH, imgH, padding, style, displayMeta, exif.cameraBrand);
 
     const compositedBuffer = await sharp(extendedBuffer)

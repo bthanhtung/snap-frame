@@ -77,13 +77,13 @@ export function buildDisplayMetadata(
   const defaultShowFields = ['camera', 'lens', 'focalLength', 'aperture', 'shutterSpeed', 'iso', 'date'];
   const showFields = override?.showFields ?? defaultShowFields;
   const merged: Record<string, string | undefined> = {
-    camera: override?.camera ?? exif.camera,
-    lens: override?.lens ?? exif.lens,
-    focalLength: override?.focalLength ?? exif.focalLength,
-    aperture: override?.aperture ?? exif.aperture,
-    shutterSpeed: override?.shutterSpeed ?? exif.shutterSpeed,
-    iso: (override?.iso ?? exif.iso) ? `ISO ${override?.iso ?? exif.iso}` : undefined,
-    date: override?.date ?? exif.date,
+    camera: override?.camera !== undefined ? override.camera : exif.camera,
+    lens: override?.lens !== undefined ? override.lens : exif.lens,
+    focalLength: override?.focalLength !== undefined ? override.focalLength : exif.focalLength,
+    aperture: override?.aperture !== undefined ? override.aperture : exif.aperture,
+    shutterSpeed: override?.shutterSpeed !== undefined ? override.shutterSpeed : exif.shutterSpeed,
+    iso: (override?.iso !== undefined ? override.iso : exif.iso) ? `ISO ${override?.iso !== undefined ? override.iso : exif.iso}` : undefined,
+    date: override?.date !== undefined ? override.date : exif.date,
     location: override?.location,
   };
   const result: Record<string, string> = {};
