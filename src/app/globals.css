@@ -416,60 +416,83 @@ a { color: inherit; text-decoration: none; }
     min-height: 450px;
     height: 50vh;      /* Use 50% of screen for preview on mobile */
   }
-/* Modern Dropdown Styling */
+/* Premium Metadata Decoration */
 .position-dropdown-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 16px;
   margin-bottom: 24px;
-  padding: 16px;
-  background: var(--bg-secondary);
-  border-radius: 16px;
+  padding: 20px;
+  background: #f1f8f4; /* Matcha Light Tint */
+  border-radius: 20px;
+  border: 1px solid rgba(30, 138, 64, 0.1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .dropdown-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .dropdown-group label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
+  letter-spacing: 0.1em;
+  color: #1e8a40; /* Matcha Green */
 }
 
 .modern-select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 16px;
   background: var(--card-bg);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  font-size: 0.85rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: var(--foreground);
   cursor: pointer;
-  transition: all 0.2s;
-  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231e8a40' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 32px;
+  background-position: right 14px center;
 }
 
 .modern-select:hover {
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .modern-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(30, 138, 64, 0.15);
+}
+
+/* Metadata Field Polishing */
+.metadata-field {
+  background: var(--card-bg);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 12px;
+  border-radius: 14px;
+  transition: all 0.2s;
+}
+
+.metadata-field:focus-within {
+  border-color: rgba(30, 138, 64, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.metadata-field input {
+  font-weight: 500;
+  border: none;
+  padding: 6px 0 0 0;
+  background: transparent;
 }
 
 /* Visibility Toggle */
