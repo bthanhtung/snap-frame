@@ -93,8 +93,17 @@ export default function EditorPage() {
 
   const handleDownload = async () => {
     if (!previewBlobUrl || !sourceFile) return;
-    const originalName = sourceFile.name.split('.')[0];
-    downloadBlob(await fetch(previewBlobUrl).then(r => r.blob()), `${originalName}-framed.jpg`);
+    
+    // Lấy tên file gốc (bỏ extension cuối cùng)
+    const fileNameParts = sourceFile.name.split('.');
+    if (fileNameParts.length > 1) fileNameParts.pop();
+    const baseName = fileNameParts.join('.');
+    
+    // Thêm timestamp để tạo tên duy nhất
+    const timestamp = new Date().getTime().toString().slice(-6);
+    const newFileName = `${baseName}-framed-${timestamp}.jpg`;
+    
+    downloadBlob(await fetch(previewBlobUrl).then(r => r.blob()), newFileName);
   };
 
   return (
