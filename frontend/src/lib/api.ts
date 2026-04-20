@@ -1,5 +1,7 @@
-// Empty string means same-domain (production on Vercel). Falls back to localhost for local dev.
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+// Use relative path in production (same domain), and localhost for development
+const API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : '';
 
 export const api = {
   baseUrl: API_URL,
