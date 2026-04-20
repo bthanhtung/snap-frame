@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from '../backend/src/app.module.js';
+import { AppModule } from '../backend/src/app.module';
 import serverlessHttp from 'serverless-http';
 import { json, urlencoded } from 'express';
 
@@ -9,8 +9,9 @@ let cachedApp: any;
 async function createApp() {
   if (cachedApp) return cachedApp;
 
+  // Use NestFactory to create the app from AppModule
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn'],
+    logger: ['error', 'warn', 'log'], // Added log for better Vercel debugging
   });
 
   app.enableCors({
@@ -42,7 +43,11 @@ export default async function handler(req: any, res: any) {
     const app = await createApp();
     return app(req, res);
   } catch (err: any) {
-    console.error('Backend Error:', err);
-    res.status(500).json({ message: 'Internal Server Error', error: err.message });
+    console.error('CRITICAL BACKEND ERROR:', err);
+    res.status(500).json({ 
+      message: 'Internal Server Error', 
+      error: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined 
+    });
   }
 }
