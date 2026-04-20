@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from '../src/app.module.js';
+import { AppModule } from '../src/app.module';
 import serverlessHttp from 'serverless-http';
+import { json, urlencoded } from 'express';
 
 let cachedApp: any;
 
@@ -19,6 +19,9 @@ async function createApp() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ limit: '10mb', extended: true }));
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -28,15 +31,6 @@ async function createApp() {
 
   app.setGlobalPrefix('api');
 
-  const config = new DocumentBuilder()
-    .setTitle('Image Frame API')
-    .setDescription('Upload ảnh, đọc EXIF, resize và thêm frame với thông số camera.')
-    .setVersion('1.0')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
-
   await app.init();
 
   cachedApp = serverlessHttp(app.getHttpAdapter().getInstance());
@@ -44,6 +38,14 @@ async function createApp() {
 }
 
 export default async function handler(req: any, res: any) {
-  const app = await createApp();
-  return app(req, res);
+  try {
+    const app = await createApp();
+    return app(req, res);
+  } catch (err: any) {
+    console.error('SERVERLESS HANDLER ERROR:', err);
+    res.status(500).json({ 
+      message: 'Internal Server Error', 
+      error: err.message 
+    });
+  }
 }
