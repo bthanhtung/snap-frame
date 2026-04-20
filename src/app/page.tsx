@@ -6,6 +6,7 @@ import DropZone from '@/components/DropZone';
 import StylePicker from '@/components/StylePicker';
 import MetadataPanel, { MetadataState } from '@/components/MetadataPanel';
 import WatermarkPanel, { WatermarkState } from '@/components/WatermarkPanel';
+import DesignPanel, { DesignState } from '@/components/DesignPanel';
 import PreviewCanvas from '@/components/PreviewCanvas';
 
 export default function EditorPage() {
@@ -26,6 +27,14 @@ export default function EditorPage() {
 
   const [watermark, setWatermark] = useState<WatermarkState>({
     imageBase64: '', position: 'bottom-right', opacity: 0.7, scale: 0.15
+  });
+  
+  const [design, setDesign] = useState<DesignState>({
+    bgColor: '#FFFFFF',
+    cornerRadius: 0,
+    shadowIntensity: 0,
+    borderWidth: 0,
+    noiseOpacity: 0
   });
 
   // Handle new file upload
@@ -59,6 +68,7 @@ export default function EditorPage() {
       ...metadata
     },
     watermark: watermark.imageBase64 ? watermark : undefined,
+    design: design,
   });
 
   // Effect: Process image when config changes (Debounced)
@@ -83,7 +93,7 @@ export default function EditorPage() {
     }, 800); // 800ms debounce
 
     return () => clearTimeout(timer);
-  }, [sourceFile, styleId, metadata, watermark]);
+  }, [sourceFile, styleId, metadata, watermark, design]);
 
   const handleDownload = async () => {
     if (!previewBlobUrl || !sourceFile) return;
@@ -135,7 +145,17 @@ export default function EditorPage() {
 
             <section className="control-section">
               <div className="section-header">
-                <h2>3. Watermark/Logo (Optional)</h2>
+                <h2>3. Thiết kế & Trang trí</h2>
+              </div>
+              <DesignPanel 
+                design={design} 
+                onChange={(k, v) => setDesign(p => ({ ...p, [k]: v }))} 
+              />
+            </section>
+
+            <section className="control-section">
+              <div className="section-header">
+                <h2>4. Watermark/Logo (Optional)</h2>
               </div>
               <WatermarkPanel 
                 watermark={watermark} 

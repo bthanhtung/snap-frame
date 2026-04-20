@@ -3,7 +3,6 @@ import {
   buildDisplayMetadata,
   calculatePadding,
   generateFrameSvg,
-  getBackgroundRgb,
   STYLE_CONFIG,
   FrameStyle,
   FrameSize,
@@ -18,44 +17,61 @@ export async function POST(req: NextRequest) {
     if (!file) return NextResponse.json({ message: 'No file' }, { status: 400 });
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    
-    // Server-side EXIF extraction is now a backup/fallback
-    let exif = {};
-    try {
-      const exifr = (await import('exifr')).default;
-      exif = await exifr.parse(buffer, { tiff: true, exif: true, mergeOutput: true }) || {};
-    } catch (e) {
-      console.warn('Server EXIF fallback failed (likely compressed image)');
-    }
-
     const sharp = (await import('sharp')).default;
+
+    // 1. Initial process: rotate and metadata
     let pipeline = sharp(buffer).rotate();
-    const resizedBuffer = await pipeline.toBuffer();
-    const { width: imgW, height: imgH } = await sharp(resizedBuffer).metadata();
+    const { width: imgW, height: imgH } = await pipeline.metadata();
     if (!imgW || !imgH) return NextResponse.json({ message: 'Bad dimensions' }, { status: 400 });
 
-    const style: FrameStyle = options.frame?.style ?? 'white-minimal';
-    const size: FrameSize   = options.frame?.size  ?? 'md';
-    const padding = calculatePadding(imgW, imgH, style, size);
-    const bgRgb   = getBackgroundRgb(style);
+    const styleId: FrameStyle = options.frame?.style ?? 'white-minimal';
+    const size: FrameSize     = options.frame?.size  ?? 'md';
+    const design = options.design || {};
+    
+    // 2. Custom Border & Corner Radius for the Image itself
+    let processedImage = pipeline;
+    const radius = design.cornerRadius || 0;
+    
+    if (radius > 0) {
+      const mask = Buffer.from(
+        `<svg><rect x="0" y="0" width="${imgW}" height="${imgH}" rx="${radius}" ry="${radius}" fill="white"/></svg>`
+      );
+      processedImage = processedImage.composite([{ input: mask, blend: 'dest-in' }]);
+    }
+
+    const imageBuffer = await processedImage.toBuffer();
+
+    // 3. Frame padding and background
+    const padding = calculatePadding(imgW, imgH, styleId, size);
+    const bgColor = design.bgColor || STYLE_CONFIG[styleId].bg;
 
     const canvasW = imgW + padding.left + padding.right;
     const canvasH = imgH + padding.top  + padding.bottom;
 
-    const extendedBuffer = await sharp(resizedBuffer)
-      .extend({ top: padding.top, bottom: padding.bottom, left: padding.left, right: padding.right, background: bgRgb })
-      .toBuffer();
+    // 4. Create the final canvas with background
+    let finalPipeline = sharp({
+      create: {
+        width: canvasW,
+        height: canvasH,
+        channels: 4,
+        background: bgColor
+      }
+    });
 
-    // PRIORITIZE client-sent metadata (which includes overrides)
-    const displayMeta = buildDisplayMetadata(exif, options.metadata || options);
-    const svgBuffer   = generateFrameSvg(canvasW, canvasH, imgH, padding, style, displayMeta, options.metadata?.cameraBrand);
+    // 5. Composite Image and Metadata SVG
+    const displayMeta = buildDisplayMetadata({}, options.metadata || options);
+    const svgBuffer   = generateFrameSvg(canvasW, canvasH, imgH, padding, styleId, displayMeta, design);
 
-    const compositedBuffer = await sharp(extendedBuffer)
-      .composite([{ input: svgBuffer, top: 0, left: 0 }])
-      .toBuffer();
+    let composites: any[] = [
+      { input: imageBuffer, top: padding.top, left: padding.left }
+    ];
 
-    let outputBuffer = await sharp(compositedBuffer).jpeg({ quality: 90 }).toBuffer();
+    // Optional Shadow (Simulated via SVG overlay in generateFrameSvg or direct composite)
+    composites.push({ input: svgBuffer, top: 0, left: 0 });
 
+    let outputBuffer = await finalPipeline.composite(composites).jpeg({ quality: 92 }).toBuffer();
+
+    // 6. Watermark
     if (options.watermark?.imageBase64) {
       outputBuffer = await applyWatermark(outputBuffer, options.watermark);
     }

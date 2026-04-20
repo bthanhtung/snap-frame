@@ -24,8 +24,7 @@ export const STYLE_CONFIG: Record<FrameStyle, {
 };
 
 export function buildDisplayMetadata(exif: ExifDataDto, override?: any): Record<string, any> {
-  const defaultShowFields = ['camera', 'lens', 'focalLength', 'aperture', 'shutterSpeed', 'iso', 'date'];
-  const showFields = override?.showFields ?? defaultShowFields;
+  const showFields = override?.showFields ?? ['camera', 'lens', 'focalLength', 'aperture', 'shutterSpeed', 'iso', 'date'];
   const merged: Record<string, any> = {
     camera: override?.camera !== undefined ? override.camera : exif.camera,
     lens: override?.lens !== undefined ? override.lens : exif.lens,
@@ -45,43 +44,28 @@ export function buildDisplayMetadata(exif: ExifDataDto, override?: any): Record<
   return result;
 }
 
-export function calculatePadding(imageWidth: number, imageHeight: number, style: FrameStyle, size: FrameSize): FramePadding {
+export function calculatePadding(w: number, h: number, style: FrameStyle, size: FrameSize): FramePadding {
   const b = { sm: 40, md: 80, lg: 120, xl: 160 }[size];
   const pads: Record<FrameStyle, any> = {
-    'polaroid': { t: 0.4, r: 0.5, b: 3.5, l: 0.5 },
-    'instax':   { t: 0.5, r: 0.5, b: 1.2, l: 0.5 },
-    'kodachrome': { t: 0.5, r: 0.5, b: 2.8, l: 0.5 },
-    'darkroom': { t: 0.3, r: 0.3, b: 2.5, l: 0.3 },
-    'fujifilm': { t: 0.4, r: 0.4, b: 2.2, l: 0.4 },
-    'film-strip': { t: 0.6, r: 0.6, b: 2.8, l: 0.6 },
-    'white-minimal': { t: 0.5, r: 0.5, b: 2.5, l: 0.5 },
-    'black-film': { t: 0.5, r: 0.5, b: 2.5, l: 0.5 },
+    'polaroid': { t: 0.4, r: 0.5, b: 3.5, l: 0.5 }, 'instax': { t: 0.5, r: 0.5, b: 1.2, l: 0.5 },
+    'kodachrome': { t: 0.5, r: 0.5, b: 2.8, l: 0.5 }, 'darkroom': { t: 0.3, r: 0.3, b: 2.5, l: 0.3 },
+    'fujifilm': { t: 0.4, r: 0.4, b: 2.2, l: 0.4 }, 'film-strip': { t: 0.6, r: 0.6, b: 2.8, l: 0.6 },
+    'white-minimal': { t: 0.5, r: 0.5, b: 2.5, l: 0.5 }, 'black-film': { t: 0.5, r: 0.5, b: 2.5, l: 0.5 },
     'light-leica': { t: 0.5, r: 0.5, b: 2.5, l: 0.5 }
   };
   const p = pads[style] || { t: 0.6, r: 0.6, b: 3.0, l: 0.6 };
   return { top: Math.round(b * p.t), right: Math.round(b * p.r), bottom: Math.round(b * p.b), left: Math.round(b * p.l) };
 }
 
-export function getBackgroundRgb(style: FrameStyle): { r: number; g: number; b: number } {
-  const map: Record<FrameStyle, [number, number, number]> = {
-    'white-minimal': [255, 255, 255], 'black-film': [13, 13, 13], 'light-leica': [248, 244, 239],
-    'film-strip': [17, 17, 17], 'polaroid': [254, 254, 254], 'instax': [255, 254, 245],
-    'kodachrome': [245, 230, 200], 'darkroom': [10, 10, 10], 'fujifilm': [255, 255, 255],
-  };
-  const [r, g, b] = map[style];
-  return { r, g, b };
-}
-
 export function generateFrameSvg(
   w: number, h: number, imgH: number, padding: FramePadding,
-  style: FrameStyle, meta: Record<string, string>, cameraBrand?: string
+  style: FrameStyle, meta: Record<string, string>, options: any = {}
 ): Buffer {
   const config = STYLE_CONFIG[style];
   const fs = Math.max(16, Math.min(28, Math.round(w / 55)));
   const sfs = Math.round(fs * 0.8);
   const lh = Math.round(fs * 1.6);
   
-  // Calculate Y position based on vPosition (top or bottom)
   const isTop = meta._vpos === 'top';
   const yBase = isTop ? Math.round(padding.top * 0.4) : (padding.top + imgH + Math.round(padding.bottom * 0.25));
   const sy = yBase + fs;
@@ -90,7 +74,7 @@ export function generateFrameSvg(
   const rx = w - padding.right - 24;
   const cx = Math.round(w / 2);
 
-  const camera = xe(meta.camera ?? cameraBrand ?? '');
+  const camera = xe(meta.camera ?? '');
   const lens = xe(meta.lens ?? '');
   const specs = [meta.focalLength, meta.aperture, meta.shutterSpeed, meta.iso ? `ISO ${meta.iso}` : ''].filter(Boolean).map(xe).join('  ·  ');
   const date = xe(meta.date ?? '');
@@ -114,7 +98,6 @@ export function generateFrameSvg(
       <text x="${rx}" y="${sy + lh}" font-family="${config.font}" font-size="${sfs}px" font-weight="300" fill="${config.secondaryText}" text-anchor="end">${lens}  ${specs}  ${date}</text>
     `;
   } else {
-    // Default: Between
     content = `
       <text x="${lx}" y="${sy}" font-family="${config.font}" font-size="${fs}px" font-weight="600" fill="${config.text}" text-anchor="start">${camera}</text>
       <text x="${lx}" y="${sy + lh}" font-family="${config.font}" font-size="${sfs}px" font-weight="300" fill="${config.secondaryText}" text-anchor="start">${lens}</text>
@@ -123,12 +106,20 @@ export function generateFrameSvg(
     `;
   }
 
+  // Handle Border & Shadow Decoration in SVG if needed
+  let decoration = '';
+  if (options.shadowIntensity > 0) {
+    decoration += `<rect x="${padding.left}" y="${padding.top}" width="${w-padding.left-padding.right}" height="${imgH}" 
+      fill="none" stroke="black" stroke-width="1" opacity="${options.shadowIntensity / 100}" />`;
+  }
+
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+    ${decoration}
     ${content}
   </svg>`;
   return Buffer.from(svg);
 }
 
 function xe(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
