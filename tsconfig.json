@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "ES2022",
+    "skipLibCheck": true,
+    "strict": false,
+    "noImplicitAny": false
+  },
+  "include": ["api/**/*", "apps/backend/api/**/*", "apps/backend/src/**/*"]
+}

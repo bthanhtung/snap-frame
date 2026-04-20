@@ -1,21 +1,15 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "apps/frontend/package.json",
-      "use": "@vercel/next"
-    },
-    {
-      "src": "apps/backend/api/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["apps/backend/src/**"]
-      }
+  "framework": "nextjs",
+  "installCommand": "npm install && npm install --prefix apps/backend && npm install --prefix apps/frontend",
+  "buildCommand": "npm install --prefix apps/backend && npm run build:frontend",
+  "outputDirectory": "apps/frontend/.next",
+  "functions": {
+    "api/index.ts": {
+      "memory": 1024,
+      "maxDuration": 30
     }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/apps/backend/api/index.ts" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/apps/frontend/$1" }
+  },
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index" }
   ]
 }
