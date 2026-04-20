@@ -10,5 +10,5 @@
     "strict": false,
     "noImplicitAny": false
   },
-  "include": ["api/**/*", "apps/backend/api/**/*", "apps/backend/src/**/*"]
+  "include": ["api/**/*", "backend/api/**/*", "backend/src/**/*"]
 }

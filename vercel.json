@@ -1,10 +1,10 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "if [ -d apps/frontend ]; then cd apps/frontend && npm run build && mv .next ../../.next; elif [ -d frontend ]; then cd frontend && npm run build && mv .next ../.next; else npm run build && mv .next ./next_backup; fi",
-  "outputDirectory": ".next",
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/.next",
   "functions": {
     "api/index.ts": {
-      "includeFiles": "apps/backend/**",
+      "includeFiles": "backend/**",
       "memory": 1024,
       "maxDuration": 30
     }
