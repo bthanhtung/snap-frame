@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/frontend/package.json",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "apps/backend/api/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["apps/backend/src/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "apps/backend/api/index.ts"
+    }
+  ]
+}

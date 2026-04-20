@@ -1,3 +1,4 @@
+// Empty string means same-domain (production on Vercel). Falls back to localhost for local dev.
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 export const api = {
