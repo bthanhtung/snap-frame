@@ -1,7 +1,7 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "npm run build -w snap-frame-frontend",
-  "outputDirectory": "apps/frontend/.next",
+  "buildCommand": "cd apps/frontend && npm run build",
+  "outputDirectory": "frontend/.next",
   "functions": {
     "api/index.ts": {
       "includeFiles": "apps/backend/**",
