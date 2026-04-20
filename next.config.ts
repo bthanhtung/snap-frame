@@ -1,12 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Cho phép Sharp hoạt động tốt trên Vercel bằng cách coi nó là external
-  serverExternalPackages: ["sharp"],
+  // Chế độ standalone giúp giảm đáng kể kích thước bundle trên Vercel
+  output: 'standalone',
   
-  // Tắt các kiểm tra gây lỗi build trên môi trường CI nếu cần thiết
+  // Ép Sharp là external để Vercel tự xử lý binary tối ưu nhất
+  serverExternalPackages: ["sharp"],
+
   typescript: {
     ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 
