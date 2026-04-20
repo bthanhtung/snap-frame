@@ -24,7 +24,7 @@ export const STYLE_CONFIG: Record<FrameStyle, {
 };
 
 export function buildDisplayMetadata(exif: ExifDataDto, override?: any): Record<string, any> {
-  const showFields = override?.showFields ?? ['camera', 'lens', 'focalLength', 'aperture', 'shutterSpeed', 'iso', 'date'];
+  const showFields = override?.showFields ?? ['camera', 'lens', 'focalLength', 'aperture', 'shutterSpeed', 'iso', 'date', 'author'];
   const merged: Record<string, any> = {
     camera: override?.camera !== undefined ? override.camera : exif.camera,
     lens: override?.lens !== undefined ? override.lens : exif.lens,
@@ -34,6 +34,7 @@ export function buildDisplayMetadata(exif: ExifDataDto, override?: any): Record<
     iso: (override?.iso !== undefined ? override.iso : exif.iso) ? `${override?.iso !== undefined ? override.iso : exif.iso}` : undefined,
     date: override?.date !== undefined ? override.date : exif.date,
     location: override?.location,
+    author: override?.author,
     position: override?.position ?? 'between',
     vPosition: override?.vPosition ?? 'bottom',
   };
@@ -44,7 +45,7 @@ export function buildDisplayMetadata(exif: ExifDataDto, override?: any): Record<
   return result;
 }
 
-export function calculatePadding(w: number, h: number, style: FrameStyle, size: FrameSize): FramePadding {
+export function calculatePadding(w: number, h: number, style: FrameStyle, size: FrameSize, vPos: 'top' | 'bottom' = 'bottom'): FramePadding {
   const b = { sm: 40, md: 80, lg: 120, xl: 160 }[size];
   const pads: Record<FrameStyle, any> = {
     'polaroid': { t: 0.4, r: 0.5, b: 3.5, l: 0.5 }, 'instax': { t: 0.5, r: 0.5, b: 1.2, l: 0.5 },
@@ -54,7 +55,17 @@ export function calculatePadding(w: number, h: number, style: FrameStyle, size: 
     'light-leica': { t: 0.5, r: 0.5, b: 2.5, l: 0.5 }
   };
   const p = pads[style] || { t: 0.6, r: 0.6, b: 3.0, l: 0.6 };
-  return { top: Math.round(b * p.t), right: Math.round(b * p.r), bottom: Math.round(b * p.b), left: Math.round(b * p.l) };
+  
+  // DYNAMIC PADDING: Swap top/bottom if metadata is at the top
+  const finalTop = vPos === 'top' ? p.b : p.t;
+  const finalBottom = vPos === 'top' ? p.t : p.b;
+
+  return { 
+    top: Math.round(b * finalTop), 
+    right: Math.round(b * p.r), 
+    bottom: Math.round(b * finalBottom), 
+    left: Math.round(b * p.l) 
+  };
 }
 
 export function generateFrameSvg(
@@ -67,7 +78,8 @@ export function generateFrameSvg(
   const lh = Math.round(fs * 1.6);
   
   const isTop = meta._vpos === 'top';
-  const yBase = isTop ? Math.round(padding.top * 0.4) : (padding.top + imgH + Math.round(padding.bottom * 0.25));
+  // Adjust Y base: if top, it's relative to padding.top. If bottom, it's relative to image bottom.
+  const yBase = isTop ? Math.round(padding.top * 0.28) : (padding.top + imgH + Math.round(padding.bottom * 0.25));
   const sy = yBase + fs;
 
   const lx = padding.left + 24;
@@ -75,46 +87,43 @@ export function generateFrameSvg(
   const cx = Math.round(w / 2);
 
   const camera = xe(meta.camera ?? '');
+  const author = xe(meta.author ?? '');
   const lens = xe(meta.lens ?? '');
   const specs = [meta.focalLength, meta.aperture, meta.shutterSpeed, meta.iso ? `ISO ${meta.iso}` : ''].filter(Boolean).map(xe).join('  ·  ');
   const date = xe(meta.date ?? '');
+
+  // Format "Shot on" label
+  const authorLabel = author ? author : '';
 
   let content = '';
   const pos = meta._pos || 'between';
 
   if (pos === 'center') {
     content = `
-      <text x="${cx}" y="${sy}" font-family="${config.font}" font-size="${fs}px" font-weight="600" fill="${config.text}" text-anchor="middle">${camera}</text>
+      <text x="${cx}" y="${sy}" font-family="${config.font}" font-size="${fs}px" font-weight="600" fill="${config.text}" text-anchor="middle">${camera} ${authorLabel ? ` | ${authorLabel}` : ''}</text>
       <text x="${cx}" y="${sy + lh}" font-family="${config.font}" font-size="${sfs}px" font-weight="300" fill="${config.secondaryText}" text-anchor="middle">${lens}  ${specs}</text>
     `;
   } else if (pos === 'left') {
     content = `
-      <text x="${lx}" y="${sy}" font-family="${config.font}" font-size="${fs}px" font-weight="600" fill="${config.text}" text-anchor="start">${camera}</text>
+      <text x="${lx}" y="${sy}" font-family="${config.font}" font-size="${fs}px" font-weight="600" fill="${config.text}" text-anchor="start">${camera} ${authorLabel ? ` | ${authorLabel}` : ''}</text>
       <text x="${lx}" y="${sy + lh}" font-family="${config.font}" font-size="${sfs}px" font-weight="300" fill="${config.secondaryText}" text-anchor="start">${lens}  ${specs}  ${date}</text>
     `;
   } else if (pos === 'right') {
     content = `
-      <text x="${rx}" y="${sy}" font-family="${config.font}" font-size="${fs}px" font-weight="600" fill="${config.text}" text-anchor="end">${camera}</text>
+      <text x="${rx}" y="${sy}" font-family="${config.font}" font-size="${fs}px" font-weight="600" fill="${config.text}" text-anchor="end">${camera} ${authorLabel ? ` | ${authorLabel}` : ''}</text>
       <text x="${rx}" y="${sy + lh}" font-family="${config.font}" font-size="${sfs}px" font-weight="300" fill="${config.secondaryText}" text-anchor="end">${lens}  ${specs}  ${date}</text>
     `;
   } else {
+    // Default: Between
     content = `
-      <text x="${lx}" y="${sy}" font-family="${config.font}" font-size="${fs}px" font-weight="600" fill="${config.text}" text-anchor="start">${camera}</text>
+      <text x="${lx}" y="${sy}" font-family="${config.font}" font-size="${fs}px" font-weight="600" fill="${config.text}" text-anchor="start">${camera} ${authorLabel ? ` | ${authorLabel}` : ''}</text>
       <text x="${lx}" y="${sy + lh}" font-family="${config.font}" font-size="${sfs}px" font-weight="300" fill="${config.secondaryText}" text-anchor="start">${lens}</text>
       <text x="${rx}" y="${sy}" font-family="${config.font}" font-size="${sfs}px" font-weight="300" fill="${config.secondaryText}" text-anchor="end">${specs}</text>
       <text x="${rx}" y="${sy + lh}" font-family="${config.font}" font-size="${sfs}px" font-weight="300" fill="${config.accentText}" text-anchor="end">${date}</text>
     `;
   }
 
-  // Handle Border & Shadow Decoration in SVG if needed
-  let decoration = '';
-  if (options.shadowIntensity > 0) {
-    decoration += `<rect x="${padding.left}" y="${padding.top}" width="${w-padding.left-padding.right}" height="${imgH}" 
-      fill="none" stroke="black" stroke-width="1" opacity="${options.shadowIntensity / 100}" />`;
-  }
-
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-    ${decoration}
     ${content}
   </svg>`;
   return Buffer.from(svg);
@@ -122,4 +131,14 @@ export function generateFrameSvg(
 
 function xe(str: string): string {
   return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+export function getBackgroundRgb(style: FrameStyle): { r: number; g: number; b: number } {
+  const map: Record<FrameStyle, [number, number, number]> = {
+    'white-minimal': [255, 255, 255], 'black-film': [13, 13, 13], 'light-leica': [248, 244, 239],
+    'film-strip': [17, 17, 17], 'polaroid': [254, 254, 254], 'instax': [255, 254, 245],
+    'kodachrome': [245, 230, 200], 'darkroom': [10, 10, 10], 'fujifilm': [255, 255, 255],
+  };
+  const [r, g, b] = map[style];
+  return { r, g, b };
 }

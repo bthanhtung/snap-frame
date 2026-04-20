@@ -20,7 +20,8 @@ export default function EditorPage() {
 
   const [metadata, setMetadata] = useState<MetadataState>({
     camera: '', lens: '', focalLength: '', aperture: '', shutterSpeed: '', iso: '', date: '', location: '',
-    showFields: ['camera', 'focalLength', 'aperture', 'shutterSpeed', 'iso'],
+    author: '',
+    showFields: ['camera', 'author', 'focalLength', 'aperture', 'shutterSpeed', 'iso'],
     position: 'between',
     vPosition: 'bottom'
   });

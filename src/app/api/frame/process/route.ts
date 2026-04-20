@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
     const styleId: FrameStyle = options.frame?.style ?? 'white-minimal';
     const size: FrameSize     = options.frame?.size  ?? 'md';
     const design = options.design || {};
+    const vPos = options.metadata?.vPosition || 'bottom';
     
     // 2. Custom Border & Corner Radius for the Image itself
     let processedImage = pipeline;
@@ -41,8 +42,8 @@ export async function POST(req: NextRequest) {
 
     const imageBuffer = await processedImage.toBuffer();
 
-    // 3. Frame padding and background
-    const padding = calculatePadding(imgW, imgH, styleId, size);
+    // 3. Dynamic Frame padding and background based on vPosition
+    const padding = calculatePadding(imgW, imgH, styleId, size, vPos);
     const bgColor = design.bgColor || STYLE_CONFIG[styleId].bg;
 
     const canvasW = imgW + padding.left + padding.right;
@@ -66,7 +67,6 @@ export async function POST(req: NextRequest) {
       { input: imageBuffer, top: padding.top, left: padding.left }
     ];
 
-    // Optional Shadow (Simulated via SVG overlay in generateFrameSvg or direct composite)
     composites.push({ input: svgBuffer, top: 0, left: 0 });
 
     let outputBuffer = await finalPipeline.composite(composites).jpeg({ quality: 92 }).toBuffer();

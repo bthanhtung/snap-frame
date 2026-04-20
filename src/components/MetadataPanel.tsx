@@ -6,7 +6,8 @@ import {
   EyeOff,
   MoveHorizontal,
   MoveVertical,
-  Settings2
+  Settings2,
+  User
 } from 'lucide-react';
 
 export interface MetadataState {
@@ -18,6 +19,7 @@ export interface MetadataState {
   iso: string;
   date: string;
   location: string;
+  author: string;
   showFields: string[];
   position: 'left' | 'center' | 'right' | 'between';
   vPosition: 'top' | 'bottom';
@@ -31,6 +33,7 @@ interface MetadataPanelProps {
 
 const FIELDS = [
   { key: 'camera', label: 'Camera' },
+  { key: 'author', label: 'Author / Shot on' },
   { key: 'lens', label: 'Lens' },
   { key: 'focalLength', label: 'Focal Length' },
   { key: 'aperture', label: 'Aperture' },
@@ -69,7 +72,6 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
         <p className="panel-subtitle">Tùy chỉnh thông số và vị trí hiển thị</p>
       </div>
 
-      {/* Layout Controls - Styled exactly like Metadata Fields */}
       <div className="metadata-grid" style={{ marginBottom: '24px' }}>
         <div className="metadata-field layout-field">
           <div className="field-header">
@@ -118,18 +120,21 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
             <div key={key} className={`metadata-field ${!isShown ? 'hidden-field' : ''}`}>
               <div className="field-header">
                 <label>{label}</label>
-                <button 
-                  className={`visibility-toggle ${isShown ? 'visible' : ''}`}
-                  onClick={() => handleToggleField(key)}
-                >
-                  {isShown ? <Eye size={14} /> : <EyeOff size={14} />}
-                </button>
+                <div className="field-actions">
+                  {key === 'author' && <User size={12} style={{ marginRight: '8px', opacity: 0.5 }} />}
+                  <button 
+                    className={`visibility-toggle ${isShown ? 'visible' : ''}`}
+                    onClick={() => handleToggleField(key)}
+                  >
+                    {isShown ? <Eye size={14} /> : <EyeOff size={14} />}
+                  </button>
+                </div>
               </div>
               <input 
                 type="text" 
                 value={val || ''} 
                 onChange={handleInputChange(key as keyof MetadataState)}
-                placeholder={label}
+                placeholder={key === 'author' ? 'e.g. Shot on iPhone 15 Pro' : label}
                 disabled={!isShown}
               />
             </div>
