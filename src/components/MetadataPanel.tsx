@@ -1,6 +1,16 @@
 'use client';
 
 import { ChangeEvent } from 'react';
+import { 
+  AlignLeft, 
+  AlignCenter, 
+  AlignRight, 
+  AlignJustify, 
+  ChevronUp, 
+  ChevronDown,
+  Eye,
+  EyeOff
+} from 'lucide-react';
 
 export interface MetadataState {
   camera: string;
@@ -38,7 +48,7 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
     return (
       <div className="metadata-panel">
         <div className="skeleton" style={{ height: '32px', marginBottom: '1rem' }} />
-        <div className="skeleton" style={{ height: '120px' }} />
+        <div className="skeleton" style={{ height: '200px' }} />
       </div>
     );
   }
@@ -59,46 +69,49 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
     <div className="metadata-panel">
       <div className="panel-header">
         <h3 className="panel-title">Metadata Config</h3>
-        <span className="panel-subtitle">Tùy chỉnh thông số hiển thị</span>
+        <p className="panel-subtitle">Tùy chỉnh thông số và vị trí hiển thị</p>
       </div>
 
-      {/* Position Selectors */}
-      <div className="position-controls">
-        <div className="control-group">
-          <label className="group-label">Vị trí ngang</label>
-          <div className="btn-group">
+      <div className="position-section">
+        <div className="position-group">
+          <label>Căn lề ngang</label>
+          <div className="segmented-control">
             {[
-              { id: 'left', label: 'Trái' },
-              { id: 'center', label: 'Giữa' },
-              { id: 'right', label: 'Phải' },
-              { id: 'between', label: 'Đều 2 bên' }
+              { id: 'left', icon: <AlignLeft size={16} />, label: 'Trái' },
+              { id: 'center', icon: <AlignCenter size={16} />, label: 'Giữa' },
+              { id: 'right', icon: <AlignRight size={16} />, label: 'Phải' },
+              { id: 'between', icon: <AlignJustify size={16} />, label: 'Đều' }
             ].map(pos => (
               <button 
                 key={pos.id}
-                className={`group-btn ${metadata.position === pos.id ? 'active' : ''}`}
+                className={`segment-btn ${metadata.position === pos.id ? 'active' : ''}`}
                 onClick={() => onChange('position', pos.id)}
+                title={pos.label}
               >
-                {pos.label}
+                {pos.icon}
               </button>
             ))}
+            <div className={`selection-slider pos-${metadata.position}`} />
           </div>
         </div>
 
-        <div className="control-group">
-          <label className="group-label">Vị trí dọc</label>
-          <div className="btn-group">
+        <div className="position-group">
+          <label>Vị trí dọc</label>
+          <div className="segmented-control v-control">
             {[
-              { id: 'top', label: 'Trên' },
-              { id: 'bottom', label: 'Dưới' }
+              { id: 'top', icon: <ChevronUp size={16} />, label: 'Trên' },
+              { id: 'bottom', icon: <ChevronDown size={16} />, label: 'Dưới' }
             ].map(vpos => (
               <button 
                 key={vpos.id}
-                className={`group-btn ${metadata.vPosition === vpos.id ? 'active' : ''}`}
+                className={`segment-btn ${metadata.vPosition === vpos.id ? 'active' : ''}`}
                 onClick={() => onChange('vPosition', vpos.id)}
+                title={vpos.label}
               >
-                {vpos.label}
+                {vpos.icon}
               </button>
             ))}
+            <div className={`selection-slider vpos-${metadata.vPosition}`} />
           </div>
         </div>
       </div>
@@ -113,24 +126,17 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
               <div className="field-header">
                 <label>{label}</label>
                 <button 
-                  className={`toggle-btn ${isShown ? 'active' : ''}`}
+                  className={`visibility-toggle ${isShown ? 'visible' : ''}`}
                   onClick={() => handleToggleField(key)}
-                  title={isShown ? 'Hide on element' : 'Show on element'}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    {isShown ? (
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 1 0 0 6 3 3 0 1 0 0-6z" />
-                    ) : (
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22" />
-                    )}
-                  </svg>
+                  {isShown ? <Eye size={14} /> : <EyeOff size={14} />}
                 </button>
               </div>
               <input 
                 type="text" 
                 value={val || ''} 
                 onChange={handleInputChange(key as keyof MetadataState)}
-                placeholder={`Empty ${label}`}
+                placeholder={label}
                 disabled={!isShown}
               />
             </div>
