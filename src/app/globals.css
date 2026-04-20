@@ -416,25 +416,27 @@ a { color: inherit; text-decoration: none; }
     min-height: 450px;
     height: 50vh;      /* Use 50% of screen for preview on mobile */
   }
-/* Modern Segmented Control */
-.position-section {
+/* Modern Dropdown Styling */
+.position-dropdown-container {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 24px;
   padding: 16px;
   background: var(--bg-secondary);
   border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.position-group {
+.dropdown-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.position-group label {
+.dropdown-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -442,57 +444,33 @@ a { color: inherit; text-decoration: none; }
   color: var(--muted);
 }
 
-.segmented-control {
-  position: relative;
-  display: flex;
-  background: rgba(0, 0, 0, 0.05);
-  padding: 3px;
-  border-radius: 10px;
-  height: 36px;
-  z-index: 1;
-}
-
-.segment-btn {
-  position: relative;
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  transition: color 0.3s ease;
-}
-
-.segment-btn.active {
-  color: var(--foreground);
-}
-
-.selection-slider {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  height: 30px;
+.modern-select {
+  width: 100%;
+  padding: 10px 12px;
   background: var(--card-bg);
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
 }
 
-/* Horizontal Positions */
-.segmented-control:not(.v-control) .selection-slider { width: calc(25% - 3px); }
-.pos-left { transform: translateX(0); }
-.pos-center { transform: translateX(100%); }
-.pos-right { transform: translateX(200%); }
-.pos-between { transform: translateX(300%); }
+.modern-select:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
 
-/* Vertical Positions */
-.v-control .selection-slider { width: calc(50% - 3px); }
-.vpos-top { transform: translateX(0); }
-.vpos-bottom { transform: translateX(100%); }
+.modern-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
 
 /* Visibility Toggle */
 .visibility-toggle {

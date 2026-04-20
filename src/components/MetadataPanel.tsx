@@ -2,14 +2,10 @@
 
 import { ChangeEvent } from 'react';
 import { 
-  AlignLeft, 
-  AlignCenter, 
-  AlignRight, 
-  AlignJustify, 
-  ChevronUp, 
-  ChevronDown,
   Eye,
-  EyeOff
+  EyeOff,
+  MoveHorizontal,
+  MoveVertical
 } from 'lucide-react';
 
 export interface MetadataState {
@@ -72,47 +68,37 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
         <p className="panel-subtitle">Tùy chỉnh thông số và vị trí hiển thị</p>
       </div>
 
-      <div className="position-section">
-        <div className="position-group">
-          <label>Căn lề ngang</label>
-          <div className="segmented-control">
-            {[
-              { id: 'left', icon: <AlignLeft size={16} />, label: 'Trái' },
-              { id: 'center', icon: <AlignCenter size={16} />, label: 'Giữa' },
-              { id: 'right', icon: <AlignRight size={16} />, label: 'Phải' },
-              { id: 'between', icon: <AlignJustify size={16} />, label: 'Đều' }
-            ].map(pos => (
-              <button 
-                key={pos.id}
-                className={`segment-btn ${metadata.position === pos.id ? 'active' : ''}`}
-                onClick={() => onChange('position', pos.id)}
-                title={pos.label}
-              >
-                {pos.icon}
-              </button>
-            ))}
-            <div className={`selection-slider pos-${metadata.position}`} />
-          </div>
+      <div className="position-dropdown-container">
+        <div className="dropdown-group">
+          <label>
+            <MoveHorizontal size={14} />
+            Căn lề ngang
+          </label>
+          <select 
+            value={metadata.position} 
+            onChange={(e) => onChange('position', e.target.value)}
+            className="modern-select"
+          >
+            <option value="left">Căn trái</option>
+            <option value="center">Căn giữa</option>
+            <option value="right">Căn phải</option>
+            <option value="between">Đều 2 bên</option>
+          </select>
         </div>
 
-        <div className="position-group">
-          <label>Vị trí dọc</label>
-          <div className="segmented-control v-control">
-            {[
-              { id: 'top', icon: <ChevronUp size={16} />, label: 'Trên' },
-              { id: 'bottom', icon: <ChevronDown size={16} />, label: 'Dưới' }
-            ].map(vpos => (
-              <button 
-                key={vpos.id}
-                className={`segment-btn ${metadata.vPosition === vpos.id ? 'active' : ''}`}
-                onClick={() => onChange('vPosition', vpos.id)}
-                title={vpos.label}
-              >
-                {vpos.icon}
-              </button>
-            ))}
-            <div className={`selection-slider vpos-${metadata.vPosition}`} />
-          </div>
+        <div className="dropdown-group">
+          <label>
+            <MoveVertical size={14} />
+            Vị trí dọc
+          </label>
+          <select 
+            value={metadata.vPosition} 
+            onChange={(e) => onChange('vPosition', e.target.value)}
+            className="modern-select"
+          >
+            <option value="top">Phía trên ảnh</option>
+            <option value="bottom">Phía dưới ảnh</option>
+          </select>
         </div>
       </div>
       
