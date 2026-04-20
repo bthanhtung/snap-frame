@@ -91,7 +91,7 @@ export default function EditorPage() {
       } finally {
         setIsProcessing(false);
       }
-    }, 800); // 800ms debounce
+    }, 400); // 400ms debounce
 
     return () => clearTimeout(timer);
   }, [sourceFile, styleId, metadata, watermark, design]);

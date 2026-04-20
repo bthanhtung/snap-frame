@@ -72,11 +72,12 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
         <p className="panel-subtitle">Tùy chỉnh thông số và vị trí hiển thị</p>
       </div>
 
-      <div className="metadata-grid" style={{ marginBottom: '24px' }}>
+      {/* Layout Controls Row */}
+      <div className="metadata-layout-row">
         <div className="metadata-field layout-field">
           <div className="field-header">
             <label>Căn lề ngang</label>
-            <div className="field-icon"><MoveHorizontal size={14} /></div>
+            <div className="field-icon"><MoveHorizontal size={12} /></div>
           </div>
           <select 
             value={metadata.position} 
@@ -93,21 +94,21 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
         <div className="metadata-field layout-field">
           <div className="field-header">
             <label>Vị trí dọc</label>
-            <div className="field-icon"><MoveVertical size={14} /></div>
+            <div className="field-icon"><MoveVertical size={12} /></div>
           </div>
           <select 
             value={metadata.vPosition} 
             onChange={(e) => onChange('vPosition', e.target.value)}
             className="field-select"
           >
-            <option value="top">Phía trên ảnh</option>
-            <option value="bottom">Phía dưới ảnh</option>
+            <option value="top">Trên</option>
+            <option value="bottom">Dưới</option>
           </select>
         </div>
       </div>
 
       <div className="section-divider">
-        <Settings2 size={12} />
+        <Settings2 size={12} style={{ marginRight: '8px', opacity: 0.5 }} />
         <span>Thông số chi tiết</span>
       </div>
       
@@ -121,7 +122,6 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
               <div className="field-header">
                 <label>{label}</label>
                 <div className="field-actions">
-                  {key === 'author' && <User size={12} style={{ marginRight: '8px', opacity: 0.5 }} />}
                   <button 
                     className={`visibility-toggle ${isShown ? 'visible' : ''}`}
                     onClick={() => handleToggleField(key)}
@@ -134,7 +134,7 @@ export default function MetadataPanel({ metadata, onChange, loading }: MetadataP
                 type="text" 
                 value={val || ''} 
                 onChange={handleInputChange(key as keyof MetadataState)}
-                placeholder={key === 'author' ? 'e.g. Shot on iPhone 15 Pro' : label}
+                placeholder={key === 'author' ? 'Shot on...' : label}
                 disabled={!isShown}
               />
             </div>
