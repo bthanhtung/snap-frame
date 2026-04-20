@@ -1,7 +1,7 @@
 {
   "framework": "nextjs",
   "installCommand": "npm install && npm install --prefix apps/backend && npm install --prefix apps/frontend",
-  "buildCommand": "npm install --prefix apps/backend && npm run build:frontend",
+  "buildCommand": "npm install --prefix apps/backend && cd apps/frontend && npm run build",
   "outputDirectory": "apps/frontend/.next",
   "functions": {
     "api/index.ts": {
