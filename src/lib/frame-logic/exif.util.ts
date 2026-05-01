@@ -1,4 +1,4 @@
-import { ExifDataDto } from '../dto/frame-response.dto.js';
+import { ExifDataDto } from '../dto/frame-response.dto';
 
 /**
  * Extract and normalize EXIF metadata from image buffer using exifr

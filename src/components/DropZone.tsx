@@ -35,13 +35,10 @@ export default function DropZone({ onFileSelect }: DropZoneProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
     accept: {
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/png': ['.png'],
-      'image/webp': ['.webp'],
-      'image/heic': ['.heic'],
-      'image/heif': ['.heif']
+      'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.heic', '.heif']
     },
-    maxFiles: 1
+    maxFiles: 1,
+    useFsAccessApi: false
   });
 
   return (

@@ -20,9 +20,18 @@ export async function POST(req: NextRequest) {
     const sharp = (await import('sharp')).default;
 
     // 1. Initial process: rotate and metadata
-    let pipeline = sharp(buffer).rotate();
-    const { width: imgW, height: imgH } = await pipeline.metadata();
+    // We need to account for EXIF orientation to get the correct dimensions after rotation
+    const metadata = await sharp(buffer).metadata();
+    let imgW = metadata.width;
+    let imgH = metadata.height;
+
+    if (metadata.orientation && metadata.orientation >= 5) {
+      [imgW, imgH] = [imgH, imgW];
+    }
+
     if (!imgW || !imgH) return NextResponse.json({ message: 'Bad dimensions' }, { status: 400 });
+
+    let pipeline = sharp(buffer).rotate();
 
     const styleId: FrameStyle = options.frame?.style ?? 'white-minimal';
     const size: FrameSize     = options.frame?.size  ?? 'md';

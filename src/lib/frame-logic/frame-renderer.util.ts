@@ -1,4 +1,4 @@
-import { ExifDataDto } from '../dto/frame-response.dto.js';
+import { ExifDataDto } from '../dto/frame-response.dto';
 
 export type FrameStyle =
   | 'white-minimal' | 'black-film' | 'light-leica' | 'film-strip'
