@@ -9,7 +9,9 @@ Kodak & Fujifilm-inspired colour, EXIF captions, batch export. Your photos never
 
 **[snap-frame.tungdadev.com](https://snap-frame.tungdadev.com)**
 
-<img src="docs/demo.gif" alt="SnapFrame demo: choose a film look, switch frames, compare before/after, export" width="900" />
+<img src="docs/demo.gif" alt="SnapFrame on desktop: choose film looks, switch frames, compare before/after, export" width="640" />&nbsp;<img src="docs/demo-phone.gif" alt="SnapFrame on a phone: swipe through looks and frames, hold to compare, swipe between photos" width="185" />
+
+<sub>Desktop · Phone</sub>
 
 </div>
 
