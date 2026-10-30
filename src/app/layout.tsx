@@ -1,45 +1,33 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Caveat, Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-export const metadata: Metadata = {
-  title: 'Image Frame | Pro Camera Metadata Overlays',
-  description: 'Add beautiful camera metadata frames and watermarks to your photos. Support EXIF extraction, custom styles, and batch processing.',
-};
+// Fonts are bundled at build time (no requests to Google at runtime) and also used to draw frame captions.
+const inter = Inter({ subsets: ['latin', 'vietnamese'], variable: '--font-inter', display: 'swap' });
+const fraunces = Fraunces({ subsets: ['latin', 'vietnamese'], variable: '--font-fraunces', display: 'swap', style: ['normal', 'italic'] });
+const mono = JetBrains_Mono({ subsets: ['latin', 'vietnamese'], variable: '--font-jetbrains', display: 'swap' });
+const caveat = Caveat({ subsets: ['latin', 'latin-ext'], variable: '--font-caveat', display: 'swap' });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const metadata: Metadata = {
+  metadataBase: new URL('https://snap-frame.tungdadev.com'),
+  title: 'SnapFrame — film looks & photo frames, right in your browser',
+  description: 'Kodak & Fujifilm-inspired film looks, elegant frames with camera details, batch export. 100% in your browser — your photos never leave your device.',
+  manifest: '/manifest.webmanifest',
+  icons: { icon: '/icon.svg', apple: '/apple-touch-icon.png' },
+  openGraph: {
+    title: 'SnapFrame — film looks & photo frames',
+    description: 'Film looks and beautiful frames for your photos. Runs entirely in your browser.',
+    images: ['/og.jpg'], type: 'website',
+  },
+  twitter: { card: 'summary_large_image' },
+};
+export const viewport: Viewport = { themeColor: '#0c0c0d', width: 'device-width', initialScale: 1, viewportFit: 'cover' };
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <div className="layout-wrapper">
-          <header className="header">
-            <div className="header-container">
-              <div className="logo">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
-                <span>Image Frame</span>
-              </div>
-              <nav className="nav-links">
-                <a href="#" className="active">Editor</a>
-                <a href="#">Batch</a>
-                <a href="#">Gallery</a>
-              </nav>
-            </div>
-          </header>
-          <main className="main-content">
-            {children}
-          </main>
-          <footer className="footer">
-            <p>Built with Next.js & NestJS. Inspired by Liit / Cameramark.</p>
-          </footer>
-        </div>
-      </body>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable} ${mono.variable} ${caveat.variable}`} suppressHydrationWarning>
+      <head><script src="/theme.js" /></head>
+      <body>{children}</body>
     </html>
   );
 }
