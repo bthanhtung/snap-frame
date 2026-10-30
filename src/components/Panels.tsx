@@ -1,7 +1,7 @@
 'use client';
 import { Bookmark, ImagePlus, RotateCcw, Trash2, Type } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { FIELDS, STYLES, type Aspect, type Field, type FontKind, type FrameStyle, type MarkPos, type TextLayout } from '@/lib/frame';
+import { compose, DEFAULT_MARK, FIELDS, FRAME_GROUPS, STYLES, type Aspect, type Field, type FontKind, type Fonts, type FrameGroup, type FrameStyle, type MarkPos, type TextLayout } from '@/lib/frame';
 import { renderer } from '@/lib/gl';
 import { useT } from '@/lib/i18n';
 import { downscale } from '@/lib/image';
@@ -13,7 +13,7 @@ type Up = (key: string, fn: (e: Edit) => Edit) => void;
 
 // ---------- Looks ----------
 const thumbCache = new Map<string, string>();
-function useLookThumbs(photo: Photo) {
+export function useLookThumbs(photo: Photo) {
   const [, force] = useState(0);
   useEffect(() => {
     let alive = true;
@@ -54,14 +54,14 @@ export function LooksPanel({ photo, edit, update }: { photo: Photo; edit: Edit; 
   );
   return <>
     <Section title={current ? current.name : t('looks.none', 'Original')}>
-      {current && <p className="text-xs text-muted -mt-1.5 mb-3">{current.note}</p>}
+      {current && <p className="text-xs text-muted -mt-1.5 mb-3">{t(`note.${current.id}`, current.note)}</p>}
       <Slider label={t('looks.strength', 'Strength')} value={edit.strength} min={0} max={1} step={0.01} reset={1}
         onChange={v => update('strength', e => ({ ...e, strength: v }))} format={v => `${Math.round(v * 100)}%`} />
     </Section>
     <div className="flex gap-1.5 py-3 overflow-x-auto -mx-1 px-1">
       {(['all', ...BRANDS] as const).map(b => (
         <button key={b} onClick={() => setBrand(b)} className={`shrink-0 h-7 px-3 rounded-full text-xs font-medium transition ${brand === b ? 'bg-fg text-bg' : 'bg-raised text-muted hover:text-fg'}`}>
-          {b === 'all' ? t('looks.all', 'All') : b}</button>
+          {b === 'all' ? t('looks.all', 'All') : t(`brand.${b}`, b)}</button>
       ))}
     </div>
     <div className="grid grid-cols-3 gap-2 pb-3">
@@ -115,45 +115,74 @@ export function AdjustPanel({ edit, update }: { edit: Edit; update: Up }) {
 
 // ---------- Frame ----------
 const SWATCHES = [null, '#ffffff', '#f6f1e9', '#e9e4da', '#d7d2c8', '#1c1c1e', '#0b0b0c', '#2f3b2f', '#8a5a44', '#1e2a44', '#c94f3d'];
-const STYLE_ORDER: FrameStyle[] = ['white', 'black', 'leica', 'gallery', 'polaroid', 'instax', 'filmstrip', 'slide', 'darkroom', 'fuji', 'blur', 'datestamp', 'none'];
-const ASPECTS: Aspect[] = ['original', '1:1', '4:5', '9:16', '3:2', '16:9'];
+export const STYLE_ORDER = Object.keys(STYLES) as FrameStyle[];
+export const ASPECTS: Aspect[] = ['original', '1:1', '4:5', '9:16', '3:2', '16:9'];
 
-function StyleSwatch({ s }: { s: FrameStyle }) {
-  const d = STYLES[s];
-  const [t, r, b, l] = d.pad.map(p => p * 3);
-  const bg = s === 'blur' ? 'linear-gradient(135deg,#7c6a8a,#d79a6a)' : d.bg;
+/** Real previews of every frame style on the current photo (graded with its current look), rebuilt shortly after edits settle. */
+export function useFrameThumbs(photo: Photo, edit: Edit, fonts: Fonts) {
+  const [thumbs, setThumbs] = useState<Partial<Record<FrameStyle, string>>>({});
+  const base = JSON.stringify([photo.id, edit.look, edit.strength, edit.adjust, { ...edit.frame, style: null }, edit.meta]);
+  useEffect(() => {
+    let alive = true;
+    const timer = setTimeout(() => {
+      const gl = renderer();
+      gl.setSource(photo.thumb, `thumb:${photo.id}`);
+      const graded = gl.render(resolveGrade(edit.look, edit.strength, edit.adjust), photo.thumb.width, photo.thumb.height, 0.2);
+      const src = document.createElement('canvas'); src.width = graded.width; src.height = graded.height;
+      src.getContext('2d')!.drawImage(graded, 0, 0);
+      const out = document.createElement('canvas'), lookName = LOOKS.find(l => l.id === edit.look)?.name;
+      const todo = [...STYLE_ORDER];
+      const step = () => {
+        if (!alive) return;
+        const batch: Partial<Record<FrameStyle, string>> = {};
+        for (const s of todo.splice(0, 6)) {
+          compose({ photo: src, frame: { ...edit.frame, style: s }, meta: edit.meta, mark: DEFAULT_MARK, fonts, lookName }, out);
+          batch[s] = out.toDataURL('image/jpeg', 0.8);
+        }
+        setThumbs(t => ({ ...t, ...batch }));
+        if (todo.length) requestAnimationFrame(step);
+      };
+      step();
+    }, 220);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [base]); // eslint-disable-line react-hooks/exhaustive-deps
+  return thumbs;
+}
+
+export function FrameTile({ s, active, src, onClick, compact }: { s: FrameStyle; active: boolean; src?: string; onClick(): void; compact?: boolean }) {
+  const t = useT();
   return (
-    <div className="aspect-square rounded-lg grid place-items-center overflow-hidden border border-line" style={{ background: bg }}>
-      <div className="w-[64%] relative" style={{ padding: `${t}px ${r}px ${b}px ${l}px`, background: s === 'blur' ? 'transparent' : d.bg }}>
-        <div className="aspect-[4/3] rounded-[2px] bg-gradient-to-br from-[#6d8fb3] via-[#c9a27a] to-[#e3735e]" />
-        {s === 'filmstrip' && <div className="absolute inset-x-0 top-0.5 h-1 bg-[repeating-linear-gradient(90deg,#ddd_0_3px,transparent_3px_6px)]" />}
-        {s === 'datestamp' && <span className="absolute right-1.5 bottom-1 text-[6px] font-mono text-orange-400">'26 10</span>}
-        {b > 5 && <div className="absolute left-1.5 right-1.5" style={{ bottom: b / 3 }}><div className="h-[3px] w-1/2 rounded bg-current opacity-40" style={{ color: d.text }} /></div>}
+    <button onClick={onClick} className={`shrink-0 rounded-xl p-1 transition ring-2 ${compact ? 'w-[76px]' : ''} ${active ? 'ring-accent' : 'ring-transparent hover:ring-line'}`}>
+      <div className="aspect-square rounded-lg grid place-items-center overflow-hidden bg-raised">
+        {src ? <img src={src} alt="" className="max-w-[88%] max-h-[88%] object-contain shadow-sm" /> : <div className="w-full h-full animate-pulse" />}
       </div>
-    </div>
+      <div className={`text-[11px] mt-1 truncate ${active ? 'text-accent font-medium' : 'text-muted'}`}>{t(`style.${s}`, STYLES[s].label)}</div>
+    </button>
   );
 }
 
-export function FramePanel({ edit, update }: { edit: Edit; update: Up }) {
+export function FramePanel({ photo, edit, update, fonts }: { photo: Photo; edit: Edit; update: Up; fonts: Fonts }) {
   const t = useT();
   const f = edit.frame;
+  const thumbs = useFrameThumbs(photo, edit, fonts);
+  const [group, setGroup] = useState<FrameGroup | 'all'>('all');
   const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => update(`frame.${String(k)}`, e => ({ ...e, frame: { ...e.frame, [k]: v } }));
   return <>
-    <Section title={t('frame.style', 'Style')}>
-      <div className="grid grid-cols-4 gap-2">
-        {STYLE_ORDER.map(s => (
-          <button key={s} onClick={() => set('style', s)} className={`rounded-xl p-1 transition ring-2 ${f.style === s ? 'ring-accent' : 'ring-transparent hover:ring-line'}`}>
-            <StyleSwatch s={s} />
-            <div className={`text-[11px] mt-1 truncate ${f.style === s ? 'text-accent font-medium' : 'text-muted'}`}>{t(`style.${s}`, STYLES[s].label)}</div>
-          </button>
+    <Section title={`${t('frame.style', 'Style')} · ${t(`style.${f.style}`, STYLES[f.style].label)}`}>
+      <div className="flex gap-1.5 pb-3 overflow-x-auto no-scrollbar -mx-1 px-1">
+        {(['all', ...FRAME_GROUPS] as const).map(g => (
+          <button key={g} onClick={() => setGroup(g)} className={`shrink-0 h-7 px-3 rounded-full text-xs font-medium transition ${group === g ? 'bg-fg text-bg' : 'bg-raised text-muted hover:text-fg'}`}>
+            {t(`fgroup.${g}`, g === 'all' ? 'All' : g[0].toUpperCase() + g.slice(1))}</button>
+        ))}
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {STYLE_ORDER.filter(s => group === 'all' || STYLES[s].group === group).map(s => (
+          <FrameTile key={s} s={s} active={f.style === s} src={thumbs[s]} onClick={() => set('style', s)} />
         ))}
       </div>
     </Section>
     <Section title={t('frame.canvas', 'Canvas')}>
-      <div className="grid grid-cols-6 gap-1 p-1 rounded-xl bg-raised mb-3">
-        {ASPECTS.map(a => <button key={a} onClick={() => set('aspect', a)} className={`h-8 rounded-lg text-[11px] font-medium ${f.aspect === a ? 'bg-panel text-fg shadow-sm' : 'text-muted'}`}>
-          {a === 'original' ? t('frame.orig', 'Orig') : a}</button>)}
-      </div>
+      <AspectPicker value={f.aspect} onChange={v => set('aspect', v)} />
       <div className="space-y-2.5">
         <Slider label={t('frame.padding', 'Margin')} value={f.padding} min={0.4} max={2.2} step={0.02} reset={1} onChange={v => set('padding', v)} format={v => `${Math.round(v * 100)}%`} />
         <Slider label={t('frame.radius', 'Rounded corners')} value={f.radius} min={0} max={1} step={0.01} onChange={v => set('radius', v)} />
@@ -184,6 +213,16 @@ export function FramePanel({ edit, update }: { edit: Edit; update: Up }) {
       </div>
     </Section>
   </>;
+}
+
+export function AspectPicker({ value, onChange }: { value: Aspect; onChange(a: Aspect): void }) {
+  const t = useT();
+  return (
+    <div className="grid grid-cols-6 gap-1 p-1 rounded-xl bg-raised mb-3">
+      {ASPECTS.map(a => <button key={a} onClick={() => onChange(a)} className={`h-8 rounded-lg text-[11px] font-medium ${value === a ? 'bg-panel text-fg shadow-sm' : 'text-muted'}`}>
+        {a === 'original' ? t('frame.orig', 'Orig') : a}</button>)}
+    </div>
+  );
 }
 
 // ---------- Info (metadata) ----------

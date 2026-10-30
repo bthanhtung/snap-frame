@@ -17,12 +17,13 @@ Kodak & Fujifilm-inspired colour, EXIF captions, batch export. Your photos never
 
 | | |
 |---|---|
-| 🎞️ **22 film looks** | Portra 400/160, Ektar, Gold, UltraMax, Kodachrome · Classic Chrome, Classic Negative, Velvia, Provia, Astia, Pro 400H, Superia, Eterna · Tri-X, HP5, Acros, T-Max · CineStill 800T (with halation), Polaroid 600, Vista, Lomo. Live previews of every look on *your* photo, with a strength slider. |
+| 🎞️ **62 film looks** | **Kodak** Portra 160/400/800, Ektar, Gold, ColorPlus, UltraMax, Ektachrome, Kodachrome, Aerochrome · **Fujifilm** Classic Chrome, Classic Neg., Nostalgic Neg., Velvia, Provia, Astia, Pro 400H, Superia, C200, Eterna, Reala Ace · **B&W** Tri-X, HP5, Acros, T-Max, Delta 3200, red filter, high key, noir, sepia, selenium, cyanotype · **Cinema** CineStill 800T/50D, teal & orange, bleach bypass, neon night… · **Instant & vintage** Polaroid 600, SX-70, Instax, Lomo, cross process, 1970s, 1980s, camcorder… · **Creative** golden hour, pastel, matte, nordic, forest, ocean, autumn, Saigon street, Kyoto, duotone, pop. Live previews on *your* photo, with a strength slider. |
 | 🎚️ **Pro adjustments** | Exposure, contrast, highlights, shadows, temperature, tint, saturation, vibrance, fade, grain, vignette, halation, sharpen — stacked on top of the look. |
-| 🖼️ **13 frames** | Classic, Noir, Rangefinder, Gallery, Polaroid, Instax, Film strip, Slide mount, Darkroom, Chroma, Blur backdrop, Date stamp, or none. Any aspect ratio (1:1, 4:5, 9:16, 3:2, 16:9), margin, rounded corners, shadow, border, background colour. |
+| 🖼️ **34 frames** | **Classic** white, noir, minimal, rangefinder, chroma, cream, kraft · **Gallery** gallery, editorial, floating, museum, wood frame, gilded, blur backdrop · **Film** Polaroid, Instax, film strip, 120 film, slide mount, darkroom, cinema, date stamp · **Colour** blush, sage, sky, mocha, sunset, aurora · **Fun** postage stamp, deckle edge, scrapbook tape, air mail, neon — or none. Every frame previewed live on your photo. Any aspect ratio (1:1, 4:5, 9:16, 3:2, 16:9), margin, rounded corners, shadow, border, background colour. |
 | 📷 **EXIF captions** | Camera, lens, focal length, aperture, shutter, ISO and date read from the photo; edit any field, choose what to print, 4 fonts, 3 layouts. GPS is never read. |
 | ✍️ **Signature** | Text (script, sans, serif, mono) or your own logo, 9 positions, size and opacity. |
 | 📚 **Batch** | Open many photos at once, *Apply to all*, export everything as a ZIP. Save your own presets. |
+| 📱 **Made for phones** | One-thumb editing: swipe through looks and frames under a big preview, press and hold the photo to compare, swipe to switch photos, share straight to Instagram/Zalo/Messenger. Add it to your home screen to use it like an app. |
 | ⚡ **Fast** | One WebGL2 shader grades the whole photo on the GPU; full-resolution export in well under a second. |
 | 🔒 **Private & offline** | 100% client-side static site: no server, no upload, no account, no tracking. Installable PWA that works offline. |
 | 🌏 **English & Tiếng Việt** | Dark and light themes, mobile-friendly. |

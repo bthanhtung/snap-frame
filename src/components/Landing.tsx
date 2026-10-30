@@ -24,8 +24,8 @@ export function Landing({ onPick, onFiles, importing }: { onPick(): void; onFile
   }
   const busySample = loadingSample || importing;
   const features = [
-    [<Sparkles key="a" />, t('l.f1', '22 film looks'), t('l.f1d', 'Portra, Ektar, Gold, Classic Chrome, Velvia, Tri-X, CineStill… with strength control.')],
-    [<Frame key="b" />, t('l.f2', '13 frames'), t('l.f2d', 'Classic, Polaroid, film strip, slide mount, blur backdrop, date stamp — any aspect ratio.')],
+    [<Sparkles key="a" />, t('l.f1', '62 film looks'), t('l.f1d', 'Kodak, Fujifilm, black & white, cinema, instant and creative looks — with strength control.')],
+    [<Frame key="b" />, t('l.f2', '34 frames'), t('l.f2d', 'Polaroid, film strip, wood & gilded frames, postage stamp, air mail, neon… any aspect ratio.')],
     [<Aperture key="c" />, t('l.f3', 'EXIF captions'), t('l.f3d', 'Camera, lens and settings read from your photo, fully editable.')],
     [<Layers key="d" />, t('l.f4', 'Batch editing'), t('l.f4d', 'Open many photos, apply one look to all, export a ZIP.')],
     [<Lock key="e" />, t('l.f5', '100% private'), t('l.f5d', 'Processed by your GPU. Photos never leave your device.')],

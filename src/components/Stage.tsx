@@ -52,7 +52,7 @@ export function Stage({ photo, edit, fonts, compare }: { photo: Photo; edit: Edi
     <div className="relative w-full h-full grid place-items-center select-none"
       onPointerMove={e => { if (compare === 'split' && e.buttons) { const r = canvas.current!.getBoundingClientRect(); setSplit(Math.min(1, Math.max(0, (e.clientX - r.left) / r.width))); } }}
       onPointerDown={e => { if (compare === 'split') { const r = canvas.current!.getBoundingClientRect(); setSplit(Math.min(1, Math.max(0, (e.clientX - r.left) / r.width))); } }}>
-      <canvas ref={canvas} className="max-w-full max-h-full object-contain rounded-sm shadow-[0_30px_80px_-20px_rgb(0_0_0/.6)]" style={{ cursor: compare === 'split' ? 'ew-resize' : 'default' }} />
+      <canvas ref={canvas} className="absolute inset-0 m-auto max-w-full max-h-full rounded-sm shadow-[0_30px_80px_-20px_rgb(0_0_0/.6)]" style={{ cursor: compare === 'split' ? 'ew-resize' : 'default' }} />
       {compare !== 'off' && (
         <div className="absolute top-3 left-1/2 -translate-x-1/2 flex gap-2 text-[11px] font-semibold uppercase tracking-wider pointer-events-none">
           {compare === 'split' ? <><span className="px-2 py-1 rounded-md bg-black/60 text-white">{t('stage.before', 'Before')}</span><span className="px-2 py-1 rounded-md bg-black/60 text-white">{t('stage.after', 'After')}</span></>

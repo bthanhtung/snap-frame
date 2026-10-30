@@ -81,7 +81,7 @@ export function Toasts() {
   );
 }
 
-export function Logo({ size = 28 }: { size?: number }) {
+export function Logo({ size = 28, textClassName }: { size?: number; textClassName?: string }) {
   return (
     <span className="inline-flex items-center gap-2 font-semibold tracking-tight">
       <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
@@ -91,7 +91,7 @@ export function Logo({ size = 28 }: { size?: number }) {
         <circle cx="16" cy="14" r="3.6" fill="none" stroke="#ffb547" strokeWidth="1.8" />
         <rect x="9" y="22.5" width="9" height="1.8" rx=".9" fill="#0c0c0d" opacity=".7" />
       </svg>
-      <span style={{ fontSize: size * 0.6 }}>SnapFrame</span>
+      <span className={textClassName} style={{ fontSize: size * 0.6 }}>SnapFrame</span>
     </span>
   );
 }

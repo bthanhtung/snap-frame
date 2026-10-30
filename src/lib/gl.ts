@@ -15,9 +15,18 @@ uniform sampler2D u_img;
 uniform vec2 u_texel, u_size;
 uniform float u_exposure, u_contrast, u_highlights, u_shadows, u_temp, u_tint, u_sat, u_vib, u_fade, u_split,
   u_mono, u_grain, u_grainSize, u_vignette, u_halation, u_sharpen, u_seed, u_haloLod;
-uniform vec3 u_lift, u_gain, u_shTint, u_hiTint, u_monoMix;
+uniform vec3 u_lift, u_gain, u_shTint, u_hiTint, u_monoMix, u_hueShift, u_satRange;  // (warm, green, blue)
 
 float luma(vec3 c) { return dot(c, vec3(.2126, .7152, .0722)); }
+vec3 rgb2hsv(vec3 c) {
+  vec4 K = vec4(0., -1. / 3., 2. / 3., -1.);
+  vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+  vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+  float d = q.x - min(q.w, q.y);
+  return vec3(abs(q.z + (q.w - q.y) / (6. * d + 1e-10)), d / (q.x + 1e-10), q.x);
+}
+vec3 hsv2rgb(vec3 c) { vec3 p = abs(fract(c.xxx + vec3(1., 2. / 3., 1. / 3.)) * 6. - 3.); return c.z * mix(vec3(1.), clamp(p - 1., 0., 1.), c.y); }
+float band(float h, float centre, float width) { float d = abs(fract(h - centre + .5) - .5); return 1. - smoothstep(0., width, d); }
 float hash(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float vnoise(vec2 p) {
   vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f);
@@ -49,10 +58,17 @@ void main() {
   if (u_contrast >= 0.) c = mix(c, c * c * (3. - 2. * c), u_contrast);
   else c = mix(c, .5 + (c - .5) * .45, -u_contrast);
 
-  // film response: per-channel lift / gain, split toning
+  // film response: per-channel lift / gain
   c = c * u_gain + u_lift * (1. - c);
-  L = luma(c);
-  c += (u_shTint - .5) * u_split * .35 * (1. - L) * (1. - L) + (u_hiTint - .5) * u_split * .35 * L * L;
+
+  // colour by range: hue shift + saturation for warm / green / blue tones
+  if (dot(abs(u_hueShift), vec3(1.)) + dot(abs(u_satRange), vec3(1.)) > 0.) {
+    vec3 h = rgb2hsv(clamp(c, 0., 1.));
+    vec3 w = vec3(band(h.x, .06, .1), band(h.x, .25, .14), band(h.x, .6, .12)) * smoothstep(.04, .2, h.y);
+    h.x = fract(h.x + dot(w, u_hueShift));
+    h.y = clamp(h.y * (1. + dot(w, u_satRange)), 0., 1.);
+    c = hsv2rgb(h);
+  }
 
   // colour: saturation & vibrance, black & white
   L = luma(c);
@@ -60,6 +76,10 @@ void main() {
   c = mix(vec3(L), c, max(0., (1. + u_sat) * (1. + u_vib * (1. - chroma))));
   float m = dot(clamp(c, 0., 1.), u_monoMix / max(dot(u_monoMix, vec3(1.)), 1e-3));
   c = mix(c, vec3(m), u_mono);
+
+  // split toning (after B&W, so toned monochromes like sepia and cyanotype work)
+  L = luma(c);
+  c += (u_shTint - .5) * u_split * .35 * (1. - L) * (1. - L) + (u_hiTint - .5) * u_split * .35 * L * L;
 
   // fade (lifted blacks)
   c = u_fade + c * (1. - u_fade * .7);
@@ -122,7 +142,7 @@ export class GradeRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     for (const n of ['u_img', 'u_texel', 'u_size', 'u_exposure', 'u_contrast', 'u_highlights', 'u_shadows', 'u_temp', 'u_tint', 'u_sat', 'u_vib',
       'u_fade', 'u_split', 'u_mono', 'u_grain', 'u_grainSize', 'u_vignette', 'u_halation', 'u_sharpen', 'u_seed', 'u_haloLod',
-      'u_lift', 'u_gain', 'u_shTint', 'u_hiTint', 'u_monoMix']) this.loc[n] = gl.getUniformLocation(p, n);
+      'u_lift', 'u_gain', 'u_shTint', 'u_hiTint', 'u_monoMix', 'u_hueShift', 'u_satRange']) this.loc[n] = gl.getUniformLocation(p, n);
   }
 
   /** Uploads a source image; skipped when the same source (by key) is already on the GPU. */
@@ -153,6 +173,7 @@ export class GradeRenderer {
     f('u_haloLod', Math.max(2, Math.log2(Math.max(this.srcW, this.srcH) / 48)));
     gl.uniform3fv(L.u_lift, g.lift); gl.uniform3fv(L.u_gain, g.gain); gl.uniform3fv(L.u_shTint, g.shadowTint);
     gl.uniform3fv(L.u_hiTint, g.highlightTint); gl.uniform3fv(L.u_monoMix, g.monoMix);
+    gl.uniform3fv(L.u_hueShift, g.hueShift); gl.uniform3fv(L.u_satRange, g.satRange);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     return this.canvas;
   }

@@ -20,6 +20,7 @@ export const metadata: Metadata = {
     images: ['/og.jpg'], type: 'website',
   },
   twitter: { card: 'summary_large_image' },
+  appleWebApp: { capable: true, title: 'SnapFrame', statusBarStyle: 'black-translucent' },
 };
 export const viewport: Viewport = { themeColor: '#0c0c0d', width: 'device-width', initialScale: 1, viewportFit: 'cover' };
 
