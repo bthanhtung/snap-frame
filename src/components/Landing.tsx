@@ -1,5 +1,6 @@
 'use client';
 import { Aperture, Frame, ImagePlus, Layers, Loader2, Lock, Moon, Share2, Sparkles, Sun, WifiOff } from 'lucide-react';
+import { useState } from 'react';
 import { useT } from '@/lib/i18n';
 import { usePrefs } from '@/state/prefs';
 import { Logo } from './ui';
@@ -12,13 +13,16 @@ const Github = ({ className = 'size-4' }: { className?: string }) => (
 export function Landing({ onPick, onFiles, importing }: { onPick(): void; onFiles(f: File[]): void; importing: boolean }) {
   const t = useT();
   const prefs = usePrefs();
+  const [loadingSample, setLoadingSample] = useState(false);
   async function sample() {
+    setLoadingSample(true);
     const files = await Promise.all(SAMPLES.map(async u => {
       const b = await fetch(u).then(r => r.blob());
       return new File([b], u.split('/').pop()!, { type: 'image/jpeg' });
     }));
     onFiles(files);
   }
+  const busySample = loadingSample || importing;
   const features = [
     [<Sparkles key="a" />, t('l.f1', '22 film looks'), t('l.f1d', 'Portra, Ektar, Gold, Classic Chrome, Velvia, Tri-X, CineStill… with strength control.')],
     [<Frame key="b" />, t('l.f2', '13 frames'), t('l.f2d', 'Classic, Polaroid, film strip, slide mount, blur backdrop, date stamp — any aspect ratio.')],
@@ -61,7 +65,8 @@ export function Landing({ onPick, onFiles, importing }: { onPick(): void; onFile
           </div>
         </button>
         <div className="mt-4 text-center">
-          <button onClick={sample} className="text-sm text-muted hover:text-accent underline-offset-4 hover:underline">{t('l.sample', 'No photo at hand? Try two sample shots →')}</button>
+          <button onClick={sample} disabled={busySample} className="inline-flex items-center gap-2 text-sm text-muted hover:text-accent underline-offset-4 hover:underline disabled:opacity-70">
+            {busySample && <Loader2 className="size-4 animate-spin" />}{busySample ? t('l.loadingSample', 'Loading sample photos…') : t('l.sample', 'No photo at hand? Try two sample shots →')}</button>
         </div>
 
         <section className="mt-16 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">

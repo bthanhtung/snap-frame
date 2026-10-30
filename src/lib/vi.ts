@@ -40,7 +40,7 @@ const vi: Record<string, string> = {
   'l.h1a': 'Màu film & khung ảnh', 'l.h1b': 'cho mọi tấm ảnh bạn yêu.',
   'l.sub': 'Khoác cho ảnh màu Kodak & Fujifilm, thêm khung thanh lịch kèm thông số máy, xuất độ phân giải gốc — ngay trong trình duyệt.',
   'l.drop': 'Thả ảnh vào đây, hoặc bấm để chọn', 'l.formats': 'JPEG · PNG · WebP · HEIC — dán ảnh (⌘V) cũng được',
-  'l.sample': 'Chưa có ảnh? Thử với hai ảnh mẫu →', 'l.foot': 'Miễn phí & mã nguồn mở · MIT',
+  'l.sample': 'Chưa có ảnh? Thử với hai ảnh mẫu →', 'l.loadingSample': 'Đang tải ảnh mẫu…', 'l.foot': 'Miễn phí & mã nguồn mở · MIT',
   'stage.before': 'Trước', 'stage.after': 'Sau', 'stage.original': 'Ảnh gốc',
 };
 export default vi;
