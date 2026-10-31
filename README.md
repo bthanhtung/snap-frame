@@ -43,7 +43,7 @@ drag-and-drop or paste (<kbd>⌘V</kbd>) photos, HEIC support, JPEG/PNG/WebP exp
 
 ## 🛠️ Run locally
 
-Requires Node.js 20+.
+Requires Node.js 22+.
 
 ```bash
 git clone https://github.com/bthanhtung/snap-frame.git
@@ -73,6 +73,23 @@ The preview works on a 1800 px copy; exports re-decode the original file. Next.j
 Sample photos are CC0 — see [`public/samples/CREDITS.md`](public/samples/CREDITS.md).
 Film looks are interpretations inspired by classic film stocks; SnapFrame is not affiliated with Kodak, Fujifilm, Ilford, CineStill, Polaroid or Agfa.
 
+## 🤝 Contributing
+
+Contributions are welcome: new film looks, frame styles, bug fixes, translations, or
+ideas. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the setup, the checks to run, and
+the few rules that matter (photos never leave the device, preview must equal export).
+Good first steps:
+
+- Try the app and [open an issue](https://github.com/bthanhtung/snap-frame/issues/new/choose) for anything odd.
+- Propose a film look with a before/after screenshot.
+- Fix something from the [issue list](https://github.com/bthanhtung/snap-frame/issues).
+
+Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). Security problems go through
+[SECURITY.md](SECURITY.md), not public issues.
+
 ## 📄 License
 
-[MIT](LICENSE)
+[GNU General Public License v3.0](LICENSE). You may use, study, share, and modify
+SnapFrame; if you distribute a modified version, it must stay under GPL-3.0 with its
+source available. Contributions made before the switch to GPL-3.0 remain available
+under [MIT](LICENSES/MIT.txt).

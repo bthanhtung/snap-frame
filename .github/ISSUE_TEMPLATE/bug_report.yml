@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in SnapFrame does not work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please remove passwords, tokens, personal data, and private files before pasting anything.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Error messages, console output, or screenshots (redacted).
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: Browser and version
+      description: For example Safari 19 on iOS, Chrome 141 on Windows
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: iPhone 15, iOS 19, Safari / MacBook, macOS 15, Chrome 141
+    validations:
+      required: true
